@@ -148,7 +148,7 @@ class NexusQ:
                 client = genai.Client(api_key=self.api_key)
                 prompt = f"Critique this answer to '{query}': {result}. Score 0-1 confidence, flag errors, suggest fixes."
                 response = client.models.generate_content(
-                    model="gemini-2.5-pro", 
+                    model="gemini-2.5-flash", 
                     contents=prompt
                 )
                 return response.text
@@ -207,7 +207,7 @@ class NexusQ:
             try:
                 client = genai.Client(api_key=self.api_key)
                 response = await client.aio.models.generate_content(
-                    model="gemini-2.5-pro", 
+                    model="gemini-2.5-flash", 
                     contents=prompt
                 )
                 return response.text
