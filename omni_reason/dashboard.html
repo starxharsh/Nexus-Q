@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OMNI-REASON | Latent Search Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        :root {
+            --bg: #05070a;
+            --surface: #0f1218;
+            --accent: #00f2ff;
+            --accent-glow: rgba(0, 242, 255, 0.3);
+            --danger: #ff3e3e;
+            --success: #00ff88;
+            --text: #e0e6ed;
+            --text-dim: #94a3b8;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Outfit', sans-serif;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            padding: 2rem;
+            background: linear-gradient(to bottom, rgba(15, 18, 24, 0.8), transparent);
+            position: absolute;
+            top: 0;
+            width: 100%;
+            z-index: 10;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            color: var(--accent);
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .logo-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--accent);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--accent);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.5); opacity: 0.5; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .stats {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .stat-item {
+            text-align: right;
+        }
+
+        .stat-label {
+            font-size: 0.7rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .stat-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.1rem;
+            color: var(--accent);
+        }
+
+        #viz-container {
+            flex: 1;
+            width: 100%;
+            height: 100%;
+            cursor: grab;
+        }
+
+        #viz-container:active { cursor: grabbing; }
+
+        .node circle {
+            fill: var(--surface);
+            stroke-width: 2px;
+            transition: all 0.3s ease;
+        }
+
+        .node text {
+            font-size: 10px;
+            fill: var(--text-dim);
+            pointer-events: none;
+        }
+
+        .link {
+            fill: none;
+            stroke: rgba(255, 255, 255, 0.1);
+            stroke-width: 1.5px;
+        }
+
+        .tooltip {
+            position: absolute;
+            background: rgba(15, 18, 24, 0.9);
+            border: 1px solid var(--accent);
+            padding: 1rem;
+            border-radius: 8px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s;
+            backdrop-filter: blur(5px);
+            max-width: 300px;
+            z-index: 100;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .hallucination {
+            stroke: var(--danger) !important;
+            filter: drop-shadow(0 0 5px var(--danger));
+        }
+
+        .high-score {
+            stroke: var(--success) !important;
+            filter: drop-shadow(0 0 5px var(--success));
+        }
+
+        .node-label {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            display: block;
+            color: var(--accent);
+        }
+
+        .node-meta {
+            font-size: 0.8rem;
+            color: var(--text-dim);
+            line-height: 1.4;
+        }
+
+        .controls {
+            position: absolute;
+            bottom: 2rem;
+            left: 2rem;
+            display: flex;
+            gap: 1rem;
+            z-index: 10;
+        }
+
+        button {
+            background: var(--surface);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text);
+            padding: 0.8rem 1.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 0.8rem;
+            transition: all 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        button:hover {
+            border-color: var(--accent);
+            background: rgba(0, 242, 255, 0.05);
+            color: var(--accent);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <div class="logo-dot"></div>
+            OMNI-REASON <span style="font-weight: 300; opacity: 0.5; margin-left: 0.5rem;">/ Latent Graph</span>
+        </div>
+        <div class="stats">
+            <div class="stat-item">
+                <div class="stat-label">Latent Nodes</div>
+                <div id="stat-nodes" class="stat-value">0</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">Max Depth</div>
+                <div id="stat-depth" class="stat-value">0</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">Pruned (Hallucinations)</div>
+                <div id="stat-pruned" class="stat-value">0</div>
+            </div>
+        </div>
+    </header>
+
+    <div id="viz-container"></div>
+    <div class="tooltip" id="tooltip"></div>
+
+    <div class="controls">
+        <button onclick="zoomToFit()">Zoom to Fit</button>
+        <button onclick="resetView()">Reset View</button>
+    </div>
+
+    <script>
+        const container = d3.select("#viz-container");
+        const tooltip = d3.select("#tooltip");
+        const width = window.innerWidth;
+        const height = window.innerHeight;
+
+        const svg = container.append("svg")
+            .attr("width", width)
+            .attr("height", height);
+
+        const g = svg.append("g");
+
+        const zoom = d3.zoom()
+            .scaleExtent([0.1, 3])
+            .on("zoom", (event) => {
+                g.attr("transform", event.transform);
+            });
+
+        svg.call(zoom);
+
+        async function init() {
+            const response = await fetch('reasoning_tree.json');
+            const data = await response.json();
+
+            const root = d3.hierarchy(data);
+            const treeLayout = d3.tree().size([height - 200, width - 400]);
+            treeLayout(root);
+
+            // Update stats
+            const nodes = root.descendants();
+            document.getElementById('stat-nodes').innerText = nodes.length;
+            document.getElementById('stat-depth').innerText = d3.max(nodes, d => d.depth);
+            document.getElementById('stat-pruned').innerText = nodes.filter(d => d.data.is_hallucination).length;
+
+            // Links
+            g.selectAll(".link")
+                .data(root.links())
+                .enter().append("path")
+                .attr("class", "link")
+                .attr("d", d3.linkHorizontal()
+                    .x(d => d.y + 200)
+                    .y(d => d.x + 100));
+
+            // Nodes
+            const node = g.selectAll(".node")
+                .data(nodes)
+                .enter().append("g")
+                .attr("class", "node")
+                .attr("transform", d => `translate(${d.y + 200},${d.x + 100})`)
+                .on("mouseover", (event, d) => {
+                    tooltip.style("opacity", 1)
+                        .html(`
+                            <span class="node-label">Reasoning Branch</span>
+                            <div class="node-meta">
+                                <strong>Content:</strong> ${d.data.content}<br>
+                                <strong>Confidence Score:</strong> <span style="color: ${d.data.score > 0.5 ? 'var(--success)' : 'var(--danger)'}">${(d.data.score * 100).toFixed(1)}%</span><br>
+                                <strong>Status:</strong> ${d.data.is_hallucination ? '<span style="color: var(--danger)">PRUNED (Hallucination)</span>' : 'Valid'}
+                            </div>
+                        `);
+                })
+                .on("mousemove", (event) => {
+                    tooltip.style("left", (event.pageX + 20) + "px")
+                        .style("top", (event.pageY - 20) + "px");
+                })
+                .on("mouseout", () => tooltip.style("opacity", 0));
+
+            node.append("circle")
+                .attr("r", d => 6 + (d.data.visits * 0.5))
+                .attr("class", d => {
+                    if (d.data.is_hallucination) return "hallucination";
+                    if (d.data.score > 0.75) return "high-score";
+                    return "";
+                })
+                .style("stroke", d => d.data.is_hallucination ? "var(--danger)" : "var(--accent)");
+
+            node.append("text")
+                .attr("dy", 15)
+                .attr("x", d => d.children ? -10 : 10)
+                .style("text-anchor", d => d.children ? "end" : "start")
+                .text(d => d.data.content.length > 20 ? d.data.content.substring(0, 20) + "..." : d.data.content);
+
+            // Initial view
+            resetView();
+        }
+
+        function resetView() {
+            svg.transition().duration(750).call(
+                zoom.transform,
+                d3.zoomIdentity.translate(width/10, height/10).scale(0.8)
+            );
+        }
+
+        function zoomToFit() {
+            // Logic to fit content
+            resetView();
+        }
+
+        init();
+
+        window.addEventListener('resize', () => {
+            const newWidth = window.innerWidth;
+            const newHeight = window.innerHeight;
+            svg.attr("width", newWidth).attr("height", newHeight);
+        });
+    </script>
+</body>
+</html>

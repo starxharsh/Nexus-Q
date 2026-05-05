@@ -1,0 +1,132 @@
+:root {
+    --bg: #050505;
+    --card-bg: rgba(255, 255, 255, 0.03);
+    --accent: #c5a059;
+    --text: #fff;
+    --text-dim: #888;
+}
+
+body {
+    background-color: var(--bg);
+    color: var(--text);
+    font-family: 'Outfit', sans-serif;
+    margin: 0;
+    display: flex;
+}
+
+.sidebar {
+    width: 280px;
+    height: 100vh;
+    border-right: 1px solid rgba(255,255,255,0.1);
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+}
+
+.logo {
+    font-size: 1.5rem;
+    font-weight: 900;
+    letter-spacing: 4px;
+    margin-bottom: 4rem;
+    color: var(--accent);
+}
+
+.nav-item {
+    padding: 1rem 0;
+    color: var(--text-dim);
+    cursor: pointer;
+    transition: 0.3s;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.nav-item:hover, .nav-item.active {
+    color: var(--accent);
+}
+
+.main-content {
+    flex: 1;
+    padding: 4rem;
+    overflow-y: auto;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4rem;
+}
+
+.user-info h1 { font-size: 2.5rem; margin-bottom: 0.5rem; }
+.user-info p { color: var(--text-dim); }
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+}
+
+.card {
+    background: var(--card-bg);
+    border: 1px solid rgba(255,255,255,0.05);
+    border-radius: 24px;
+    padding: 2rem;
+    transition: 0.3s;
+}
+
+.card:hover {
+    border-color: var(--accent);
+    transform: translateY(-5px);
+}
+
+.card-title {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 1.5rem;
+    letter-spacing: 2px;
+}
+
+.card-value {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: var(--accent);
+}
+
+.progress-bar {
+    height: 6px;
+    background: #222;
+    border-radius: 3px;
+    margin-top: 1rem;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: var(--accent);
+    width: 25%;
+}
+
+.roadmap-list {
+    margin-top: 2rem;
+}
+
+.roadmap-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    padding: 1rem;
+    background: rgba(255,255,255,0.02);
+    border-radius: 12px;
+}
+
+.dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--text-dim);
+}
+
+.dot.done { background: var(--accent); }

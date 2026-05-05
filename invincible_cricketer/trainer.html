@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AURA Neuro-Trainer | Sensory Reset</title>
+    <link rel="stylesheet" href="trainer_style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <div class="ui-panel">
+        <h2>AURA Neuro-Trainer</h2>
+        <p>Phase 1: Sensory Reset. Track the "Gold Ball" and click it as it accelerates. This trains saccadic eye movement and reaction speed.</p>
+        <button class="btn" id="start-btn">Start Training Session</button>
+        
+        <div style="margin-top: 2rem;">
+            <p style="color: #444; font-size: 0.7rem;">INSTRUCTIONS:<br>1. Focus on the ball's center.<br>2. Predict trajectory, don't just follow.<br>3. Goal: Maintain >80% accuracy as speed increases.</p>
+        </div>
+    </div>
+
+    <canvas id="training-canvas"></canvas>
+
+    <div class="score-panel">
+        <div class="stat-label">Reaction Time</div>
+        <div class="stat-val" id="reaction-time">0ms</div>
+        <div style="margin-top: 1.5rem;">
+            <div class="stat-label">Tracking Accuracy</div>
+            <div class="stat-val" id="accuracy">0%</div>
+        </div>
+    </div>
+
+    <script src="trainer.js"></script>
+</body>
+</html>
