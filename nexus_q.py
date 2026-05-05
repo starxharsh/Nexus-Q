@@ -6,11 +6,9 @@ from typing import List, Dict, Optional
 from verifier import SymbolicVerifier
 
 try:
-    import openai
-    from openai import AsyncOpenAI
+    from google import genai
 except ImportError:
-    openai = None
-    AsyncOpenAI = None
+    genai = None
 
 class NexusQ:
     """
@@ -18,8 +16,8 @@ class NexusQ:
     Inspired by Stanford/Berkeley research on Inference-Time Scaling.
     """
     
-    def __init__(self, api_key: Optional[str] = None, provider: str = "openai"):
-        self.api_key = api_key or os.getenv("NEXUS_API_KEY")
+    def __init__(self, api_key: Optional[str] = None, provider: str = "gemini"):
+        self.api_key = api_key or os.getenv("GEMINI_API_KEY")
         self.provider = provider
         self.history = []
         self.verifier = SymbolicVerifier()
@@ -145,15 +143,15 @@ class NexusQ:
 
     def _self_critique(self, result: str, query: str) -> str:
         """Internal critique layer using LLM feedback."""
-        if openai and self.api_key:
+        if genai and self.api_key:
             try:
+                client = genai.Client(api_key=self.api_key)
                 prompt = f"Critique this answer to '{query}': {result}. Score 0-1 confidence, flag errors, suggest fixes."
-                response = openai.ChatCompletion.create(
-                    model="gpt-4o", 
-                    api_key=self.api_key,
-                    messages=[{"role": "user", "content": prompt}]
+                response = client.models.generate_content(
+                    model="gemini-2.5-pro", 
+                    contents=prompt
                 )
-                return response.choices[0].message.content
+                return response.text
             except Exception as e:
                 return f"API Error: {str(e)}. Defaulting to internal heuristic. confidence: 0.85"
         else:
@@ -205,11 +203,14 @@ class NexusQ:
 
     async def _llm_call(self, prompt: str) -> str:
         """Async LLM call with mock fallback."""
-        if AsyncOpenAI and self.api_key:
+        if genai and self.api_key:
             try:
-                client = AsyncOpenAI(api_key=self.api_key)
-                resp = await client.chat.completions.create(model="gpt-4o", messages=[{"role": "user", "content": prompt}])
-                return resp.choices[0].message.content
+                client = genai.Client(api_key=self.api_key)
+                response = await client.aio.models.generate_content(
+                    model="gemini-2.5-pro", 
+                    contents=prompt
+                )
+                return response.text
             except Exception as e:
                 return f"Async API Error: {str(e)}. Defaulting to internal debate simulation."
         else:
