@@ -20,7 +20,7 @@ class Query(BaseModel):
 def read_root():
     return {"status": "online", "engine": "Nexus-Q", "location": "IIIT Pune"}
 
-@app.post("/reason")
+@app.post("/api/reason")
 async def reason(query: Query):
     try:
         if query.debate:
