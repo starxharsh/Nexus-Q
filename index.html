@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexus-Q | System-2 Reasoning Engine</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="logo">
+                <span class="logo-mark">NEXUS_Q</span>
+                <span class="logo-version">v1.0.0</span>
+            </div>
+            <div class="status">
+                <span class="status-dot"></span>
+                <span>SYSTEM ONLINE</span>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <div class="input-section">
+                <h1 class="hero-title">Adversarial Reasoning Engine</h1>
+                <p class="hero-subtitle">Input a strategic query. Nexus-Q will spawn autonomous agents to debate and synthesize a verified conclusion.</p>
+                
+                <div class="input-wrapper">
+                    <textarea id="queryInput" placeholder="E.g., Validate the scalability of an AI-first grooming tool conglomerate like Ovaros in the Indian market..." rows="3"></textarea>
+                    <button id="submitBtn" class="primary-btn">
+                        <span>INITIATE DEBATE</span>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                    </button>
+                </div>
+            </div>
+
+            <div class="terminal-section">
+                <div class="terminal-header">
+                    <span>EXECUTION_LOG</span>
+                    <span class="terminal-action">READ ONLY</span>
+                </div>
+                <div class="terminal-body" id="terminalOutput">
+                    <div class="log-entry system">> AWAITING INPUT...</div>
+                </div>
+            </div>
+        </main>
+        
+        <footer class="footer">
+            <p>Engineered by <span class="highlight">Harsh Raj</span> @ IIIT Pune. Powered by System-2 Architecture.</p>
+        </footer>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
